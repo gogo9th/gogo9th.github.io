@@ -1,0 +1,175 @@
+body {
+	color: #666;
+	background-color: #3F332B;
+	font-size: 1.1em;
+	text-align: center;
+}
+h1{
+	color: #fff;
+
+font-size: 30px;
+	padding-top: 260px;
+	font-family:Georgia;
+}
+h2 {
+	font-size: .75em;
+}
+h3 {
+	color: #5D5651;
+	font-size: 20px;
+font-family:Georgia;
+	padding: .1em;
+	margin: 1em 1em .4em;
+	background: transparent;
+	}
+
+h4 {
+	color: #F5F5F5;
+	background-color: #3A6D98;
+	margin-top: 0;
+	padding: .1em;
+	border: medium double black;
+	text-align: center;
+}
+
+a:link {
+	color: #5D5651;
+	text-decoration: underline;
+
+	padding: 2px;
+}
+
+a:visited {
+	color: #5D5651;
+text-decoration: underline;
+
+	padding: 2px;
+}
+
+a:hover {
+	color: #5D5651;
+
+text-decoration: none;
+	padding: 2px;
+}
+
+a:active {
+	color: #5D5651;
+	text-decoration: underline;
+
+	padding: 2px;
+}
+p {
+
+	padding: .3em;
+	margin: .2em;
+}
+
+
+#page {
+   background-color: #F5F5F5;
+	width: 590px;
+	margin-right: auto;
+	margin-left: auto;
+	text-align: center;
+	padding: .2em;
+	border: medium double #5D5651;
+	color: #333;
+	height: 100%;
+	font-family: Tahoma;
+}
+
+
+#header {
+   background-image: url(header.jpg);
+background-position:center;
+	background-repeat: no-repeat;
+	width: 590px;
+	height: 300px;	
+	font-family: serif;
+
+
+}
+
+
+
+ #navbar
+{
+width: auto;
+margin: 0;
+padding: .2em .2em .2em .2em;
+font-family: georgia, serif;
+text-transform: lowercase;
+
+}
+
+
+
+
+ul#navlist
+{
+list-style: none;
+padding: 0;
+margin: 0 auto;
+width: 100%;
+font-size: 12px;
+font-family:Tahoma;
+}
+
+ul#navlist li
+{
+display: block;
+float: left;
+text-align: center;
+width: 110px;
+margin: 0;
+padding: .1em;
+}
+
+ul#navlist li a
+{
+display: block;
+width: 100%;
+padding: 0.2em .2em;
+
+
+}
+
+#navbar>ul#navlist li a { width: 100%; }
+
+
+
+#content {
+	width: 574px;	
+	font-size: .8em;
+	text-align: justify;
+	margin-top: 0;
+	padding: .25em;
+	vertical-align: top;
+}
+
+#main {
+text-align: justify;
+vertical-align: top;
+	margin-top: 0;
+
+	width: 574px;
+
+	padding: .25em;
+}
+
+#valid {
+	padding: 1em;
+}
+
+
+#footer {
+font-family:Georgia;
+	clear: both;
+	background-color: #1D140E;
+	color: Silver;
+	border: medium double silver;
+	text-align: center;
+	padding: .1em;
+}
+
