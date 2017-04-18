@@ -1,6 +1,6 @@
 body {
 	color: #666;
-	background-color: #3F332B;
+	background-color: #055085;
 	font-size: 1.1em;
 	text-align: center;
 }
@@ -8,7 +8,7 @@ h1{
 	color: #fff;
 
 font-size: 30px;
-	padding-top: 260px;
+	padding-top: 230px;
 	font-family:Georgia;
 }
 h2 {
@@ -30,6 +30,11 @@ h4 {
 	padding: .1em;
 	border: medium double black;
 	text-align: center;
+}
+
+li{
+    font-weight:bold;
+	font-size: 1.0em;
 }
 
 a:link {
@@ -87,9 +92,9 @@ background-position:center;
 	width: 590px;
 	height: 300px;	
 	font-family: serif;
-
-
 }
+
+
 
 
 

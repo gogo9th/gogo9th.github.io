@@ -11,16 +11,16 @@
 <body>
 <div id="page">
 <div id="header">
+<h1>Ientifying<font color=black> Unk</font>nown Malware Intrusion by Supercomputing</h1>
 
-<h1>Your Sport Site</h1>
 </div><center>
 <div id="navbar">
 <ul id="navlist">
-<li><a href="">Home</a></li>
-<li><a href="">About Us</a></li>
-<li><a href="">News</a></li>
-<li><a href="">Contact Us</a></li>
-<li><a href="">Links</a></li>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#implementation">Implementation</a></li>
+<li><a href="#evaluation">Evaluation</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
 </ul>
 </div>
 </center>
@@ -31,38 +31,195 @@
 
 
 <div id="main">
-<h3>Welcome</h3>
-      <p><a href="#">Lorem ipsum</a> dolor sit amet, consectetur adipisicing elit, sed 
-        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim 
-        ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip 
-        ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate 
-        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat 
-        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim 
-        id est laborum.</p>
-<h3>Lorem Ipsum</h3>
-      <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. 
-        Lorem Ipsum has been the industry's standard dummy text ever since the 
-        1500s, when an unknown printer took a galley of type and scrambled it 
-        to make a type specimen book. It has survived not only five centuries, 
-        but also the leap into electronic typesetting, <a href="#">remaining essentially</a> 
-        unchanged. It was popularised in the 1960s with the release of Letraset 
-        sheets containing Lorem Ipsum passages, and more recently with desktop 
-        publishing software like Aldus PageMaker including versions of Lorem Ipsum. 
-        <br>
-        <br>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod 
-        tempor incididunt ut labore et dolore magna aliqua. <a href="#">Ut enim 
-        ad minim veniam</a>, quis nostrud exercitation ullamco laboris nisi ut 
-        aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit 
-        in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur 
-        sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt 
-        mollit anim id est laborum. </p>
+<br><h3>Introduction</h3>
+<a name="introduction"></a>
 
+<p>
+The openness and flexibiliy of current software systems such as Linux have led 
+to rapid advancement and inovation to cyber technology and online services. 
+Meanwhile, this has also created large attack surfaces and security vulnerabilities,
+which are exploited by email viruses, spyware, trojans, phishing webistes and password snatching malware. 
+Unfortunately, current studies indicate that access control systems of current operating systems
+are inappropriate and inefficient for non-expert users. <br><br>
 
+Another problem is, cyber security and cyber attacks are in arms race: once an ideal 
+software security scheme is proposed that can patch all currently existing vulnerabilites, 
+a new attack schemes are invented that breaks it. If our target of protection is
+physical human lives in a smart car, for example, the impact of security breach will be
+catastrophic, which is already too late to take countermeasures.  <br><br>
+
+To address these problems of complicate access control configuration and 
+innate limitation in software-wise security approach, recent research proposes 
+hardware-based security infrastructure, such as Trusted Platform Module (TPM). 
+TPM is a secure cryptographic processor, designed to secure CPU and memory by embeddeing
+cryptographic private keys into devices during the manufacturing stage. These keys never 
+leave the chip, kept secure permanently within the chip. Furthermore, it is infeasible 
+for the attacker even to physically break the chip, because once the chip is open 
+the private key will be permanently deleted, as per its design.  <br><br>
+
+<center><img src="3.jpg"  align="middle" width="300px" /></center><br>
+
+One of the most common use cases of TPM chips is remote attestations, which record
+the execution order of all binaries, kernel modules and dynamic libraries on the memory
+based on the trust of TPM chip. This execution history recorded by the TPM as a 
+form of a 20-byte or 32-byte cryptographic digest, (so-called SHA1 or SHA256 hash values).
+Thus, even if the entire system including the OS kernel gets compromised along with
+the program launch history file managed by the OS kernel in its memory, the system
+administrator or security analysts still have the opportunity to retrieve the 
+untemperable cryptographic digest securely stored in the TPM chip, which is a 
+'summary' of all binaries, modules and libraries having been launched since the
+system's last boot-up.<br><br>
+
+However, it's computationally intensive to derive the order of executed programs 
+based on a single crptographic hash value, as there're a large number of possible
+orderings in launched programs. For example, Linux 4.8 kernel launches about 5000
+binaries, modules, dynamic libraries and shell scripts until its boot-up completion. 
+If the system's boot-up sequence has been pre-configured by the system administrator,
+we know the deterministic order of 5,000 programs to be run, which can be applied during
+reverse-engineering the given cryptographic digest. But if there was one malware
+that was possibly injected into somewhere within this order and broke the system's
+integrity, we have 5,001 possible orderings of the program launch with the malware
+placed somewhere in the middle, If we have 2 candidate malwares suspected to be
+injected into the program, there're 12,497,500 possible orderings to be analysed. 
+Since the number of orderings grows exponentially with the number of malware, 
+the computation for cryptanalysis is infeasible for a regular machine. <br><br>
+
+In this research project, we use OpenACC and CUDA to study and demonstrate the 
+feasibility of cryptanalyzing TPM's digests and thereby exactly identify the malware 
+injected into the target machine. <br><br>
+
+In section 2, we overview the mechanism of TPM's remote attestation and how to leverage
+OpenACC and CUDA in this use case. In section 3, we explain the implementation details
+of the scheme. In section 4, we shows the experimental results. In the final section,
+we summarize our findings and discuss the future work. <br><br>
+
+</p>
+
+<h3>Overview</h3>
+<a name="overview"></a>
+
+<h2>Background</h2>
+
+<p>A software stack is the software launch history from the initial booting until "now". 
+The software stack's signature can be represented as a recursive cryptographic hash of 
+the binary files as input values. Every computational step of the software stack signature 
+gets over-written into the TPM chip's same PCR register.</p><br><br>
+
+<p>We cannot arbitrarily modify the PCR register's value, because it is physically outside 
+our CPU. Thus, software attacks cannot tamper with TPM and its PCR, due to this hardware 
+protection setting.</p><br><br>
+
+<p>So if a malicious software runs before or after the authorized program, its binary will 
+get accumulated into TPM's PCR register, and the final software stack's signature will become 
+a different value than what we expect. This way, we know that some unauthorized program 
+was/is running on our computer.</p><br><br>
+
+<h2>Problem Definition</h2>
+
+<p>Suppose we cannot run a task manager because our task manager got compromised by the malicious 
+program. So the only way for us to investigate the identity of the malicious program is by 
+looking at the TPM chip's PCR register value. Given a list of all known malicious 
+program's binaries and our expected software stack signature, we reverse-engineer 
+(i.e. re-compute the recursive SHA1 in a brute-force way for all possibilities) and determine: 
+which malicious program(s) were/are running on our compromised computer? </p><br><br>
+
+<h2>Parallel Computing</h2>
+
+<p>The larger our software stack's size is (i.e. the more programs we have launched), 
+the longer it'll take to brute-force and determine the malicious program's identity. And 
+the larger the number of candidate malicious programs is, the longer it'll take to brute-force 
+and determine the malicious program's identity.</p><br><br>
+
+<p>As the software stack size increases linearly, our the search space grows exponentially.
+As the number of candidate malicious programs linearly, our search space grows linearly.
+We can use Odyssey to test and determine the feasible maximum size of the software stacks 
+and the feasible number of malicious programs.</p><br><br>
+
+		
+<h3>Implementation</h3>
+<a name="implementation"></a>
+
+<p>
+<Setting>
+- TC: Target computer (running sample programs)<br>
+- IC: Investigator Computer (remotely checking the virus injected into TC) <br><br>
+
+TC has its own TPM chip, and IC knows this TPM chip's public key. TPM chip's 
+private key is known only to TPM itself. It's impossible to even physically 
+break the TPM chip to learn about this key. </p> <br><br>
+
+<TC's normal bootup and programs execution>
+0. Turn on the computer's power button<br>
+1. TC's BIOS (or UEFI) -> TPM : computes and sends GRUB2 bootloader binary's SHA1 value<br>
+2. TC's BIOS loads and launches GRUB2 Bootloader binary on memory.<br>
+3. TC's GRUB2 bootloader -> TPM : computes and sends Linux kernel binary's SHA1 value<br>
+4. TC's GRUB2 bootloader loads and launches Linux kernel on memory.<br>
+5. TC's Linux kernel -> TPM : <br>
+a) computes and sends every startup program binary file's SHA1 value just before launching each. (e.g. firefox, vim, gedit)<br>
+b) computes and sends its every dynamic program loader file's SHA1 value just before launching each. (e.g. ld.so in case of Linux)<br>
+c) computes and sends every dynamically shared library file's SHA1 value (e.g. .so files in case of Linux) just before loading each. (e.g. libc.so, libcrypto.so)<br>
+d) computes and sends every Linux kernel module file's SHA1 valuex before mounting each. (e.g. bluetooth, video, wifi modules) <br>
+
+<p>The TPM internally updates its currently stored SHA1 value by chronologically computing:  </p><br><br>
+
+NewValue = SHA1(CurrentValue XOR NextValue).  <br><br>
+
+<p>In this mechanism, if ever one program element in the above launch process 
+(e.g. Linux kernel) is a defected version, its binary file will have a different 
+value in the defected part and thus its computed SHA1 value by the GRUB2 bootloader 
+to be extended into the TPM chip will be completely a different value than the 
+expected one. We (IC) can remotely check if the value stored in the target computer's (TC) 
+TPM chip is our expected value or not, and thereby check if all programs loaded on 
+the system is safe to be used and if the computer (TC) is currently in a safe state.</p> <br><br>
+
+<p>The order of launching programs is important, because it represents our root of trust chain. 
+In our design, our root of trust is BIOS (or UEFI). That is, we fundamentally trust that 
+BIOS will correctly compute the GRUB bootloader binary file's SHA1 value and send it to TPM. 
+Once this holds and if GRUB bootloader is compromised, its computed SHA1 value by BIOS to 
+be stored in the TPM will be a different value, and thus by checking the currently accumulated 
+SHA1 value stored in the TPM we can detect any abnormality on the loaded program. Once the 
+compromised GRUB bootloader is loaded, it cannot modify the TPM's current value to our 
+expected value, because SHA1 computational answer space is very large and it is infeasible 
+to find a value B such that SHA1 (A XOR B) = our expected value. The same mechanism applies 
+to all possibly defected user programs, dynamic libraries or kernel modules. Before they get 
+launched, the Linux kernel always computes their SHA1 hash and extend it to TPM. Thus, once 
+the compromised component starts running, it cannot cheat on the TPM's stored value to trick 
+us into believing that the computer is in a safe state. </p> <br><br>
+
+<p>Based on my TPM extension experiment yesterday, the total number of binary, modules and 
+dynamic library was 4983, when completely booting Ubuntu 16.10 (Linux 4.8) kernel to the 
+desktop display.</p> <br><br>
+  
+<h2>TPM Remote Attestation</h2>
+1. TC (Target computer) -- IC (Investigator Computer) : Sends a random challenge number and asks 
+to send the current SHA1 value stored in TC's TPM. The challenge number is to prevent a 
+replay attack (will be explained)<br><br>
+2. TC -- TPM chip: sends IC's challenge number and asks to sign (e.g. RSA) and give its currently stored SHA1 value.<br> <br>
+3. TPM chip -- TC: signes its currently stored SHA1 value with the challenge number and sends them back<br><br>
+4. TC -- IC : sends its TPM's signed SHA1 value and the challenge number<br><br>
+5. IC : verifies the TPM's RSA signature on the signed SHA1 value and challenge number 
+(to check if this is a true SHA1 value approved by the TPM). The role of the challenge number 
+is to guarantee that this signature was created uniquely for this request with this challenge number, 
+thus a malware cannot illegally reuse this signature in the future, because the future request will 
+have a different challenge number.<br><br>
+6. IC : Checks if the SHA1 value is the same as our expected value. If not, IC creates and tests 
+all possible combination of candidate malware(s)' SHA1 value(s) into TC's program launch history's 
+sequence until IC gets the same value signed by the TPM. Once we find the matching value and matching 
+sequence, we can identify what the malware(s) is and exactly when it was launched. <br><br>
+
+</p>
+
+<h3>Evaluation</h3>
+<a name="evaluation"></a>
+<br><br>
+<h3>Conclusion</h3>
+<br><br>
+<a name="conclusion"></a>
+<center><img src="6.jpg"  align="middle" width="300px" /></center>
 </div>
 </div>
 <div id="footer">
-Copyright © 2017 | All Rights not Reserved  
+Copyright © 2020 | All Rights never Reserved  
 </div>
 
 </div>
