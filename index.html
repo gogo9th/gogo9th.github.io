@@ -31,7 +31,7 @@
 
 
 <div id="main">
-<br><h3>Introduction</h3>
+<br><br><br><h4>Introduction</h4>
 <a name="introduction"></a>
 
 <p>
@@ -40,26 +40,28 @@ to rapid advancement and inovation to cyber technology and online services.
 Meanwhile, this has also created large attack surfaces and security vulnerabilities,
 which are exploited by email viruses, spyware, trojans, phishing webistes and password snatching malware. 
 Unfortunately, current studies indicate that access control systems of current operating systems
-are inappropriate and inefficient for non-expert users. <br><br>
+are inappropriate and inefficient for non-expert users.</p>
 
-Another problem is, cyber security and cyber attacks are in arms race: once an ideal 
+<p>Another problem is, cyber security and cyber attacks are in arms race: once an ideal 
 software security scheme is proposed that can patch all currently existing vulnerabilites, 
 a new attack schemes are invented that breaks it. If our target of protection is
 physical human lives in a smart car, for example, the impact of security breach will be
-catastrophic, which is already too late to take countermeasures.  <br><br>
+catastrophic, which is already too late to take countermeasures.</p>
 
-To address these problems of complicate access control configuration and 
+<p>To address these problems of complicate access control configuration and 
 innate limitation in software-wise security approach, recent research proposes 
-hardware-based security infrastructure, such as Trusted Platform Module (TPM). 
+hardware-based security infrastructure, such as <a href="http://doi.org/10.1016/B978-075067960-2/50007-5">
+Trusted Platform Module (TPM)<sub>[9]</sub></a>. 
 TPM is a secure cryptographic processor, designed to secure CPU and memory by embeddeing
 cryptographic private keys into devices during the manufacturing stage. These keys never 
 leave the chip, kept secure permanently within the chip. Furthermore, it is infeasible 
 for the attacker even to physically break the chip, because once the chip is open 
-the private key will be permanently deleted, as per its design.  <br><br>
+the private key will be permanently deleted, as per its design.</p>
 
 <center><img src="3.jpg"  align="middle" width="300px" /></center><br>
 
-One of the most common use cases of TPM chips is remote attestations, which record
+<p>One of the most common use cases of TPM chips is <a href="doi:10.1007/s10207-011-0124-7">
+remote attestations<sub>[10]</sub><a>, which records
 the execution order of all binaries, kernel modules and dynamic libraries on the memory
 based on the trust of TPM chip. This execution history recorded by the TPM as a 
 form of a 20-byte or 32-byte cryptographic digest, (so-called SHA1 or SHA256 hash values).
@@ -68,7 +70,17 @@ the program launch history file managed by the OS kernel in its memory, the syst
 administrator or security analysts still have the opportunity to retrieve the 
 untemperable cryptographic digest securely stored in the TPM chip, which is a 
 'summary' of all binaries, modules and libraries having been launched since the
-system's last boot-up.<br><br>
+system's last boot-up.</p>
+
+<p>While the TPM updates the historical summary of all loaded binaries as a single
+digest value, the kernel also records the hahs values of loaded binaries as well as
+their file name in its own log file. But a powerful malware could compromise the kernel's
+memory space by using buffer overflow attack, for example, and thereby temper with the 
+kernel's log file, as well as the kernel's task manager. 
+In such a case, a local or remote administrator cannot determine the exact identity of the 
+malware by using the compromised kernel's resource. In such a case, the temper-proof TPM's 
+PCR value can be used to reverse-engineer the identity of the target malware, as its binary
+value must have been accumulated into the TPM's PCR. 
 
 However, it's computationally intensive to derive the order of executed programs 
 based on a single crptographic hash value, as there're a large number of possible
@@ -82,39 +94,65 @@ integrity, we have 5,001 possible orderings of the program launch with the malwa
 placed somewhere in the middle, If we have 2 candidate malwares suspected to be
 injected into the program, there're 12,497,500 possible orderings to be analysed. 
 Since the number of orderings grows exponentially with the number of malware, 
-the computation for cryptanalysis is infeasible for a regular machine. <br><br>
+the computation for cryptanalysis is infeasible for a regular machine.</p>
 
-In this research project, we use OpenACC and CUDA to study and demonstrate the 
+<p>In this research project, we use OpenCC and CUDA to study and demonstrate the 
 feasibility of cryptanalyzing TPM's digests and thereby exactly identify the malware 
-injected into the target machine. <br><br>
+injected into the target machine.</p>
 
-In section 2, we overview the mechanism of TPM's remote attestation and how to leverage
-OpenACC and CUDA in this use case. In section 3, we explain the implementation details
+<p>In section 2, we overview the mechanism of TPM's remote attestation and how to leverage
+OpenCC and CUDA in this use case. In section 3, we explain the implementation details
 of the scheme. In section 4, we shows the experimental results. In the final section,
-we summarize our findings and discuss the future work. <br><br>
+we summarize our findings and discuss the future work.</p><br><br>
 
-</p>
 
-<h3>Overview</h3>
+
+<h4>Background on TPM</h4>
 <a name="overview"></a>
 
-<h2>Background</h2>
+<p> <b>Trusted Platform Module (TPM)</b> is a temper-proof security chip which communicates with the main CPU chip and
+works independently from the CPU and memory. Thus, even if the CPU and memory gets compromised,
+they cannot peep into or temper with the TPM chip. TPM chip is temper-proof not only from cyber attacks
+but also from physical attacks. The secrecy of the private RSA key stored in TPM is the root of trust,
+which is never exposed outside the TPM. The architecture of TPM comprises two majore components: 
+software integrity measurement and remote attestation. </p>
 
-<p>A software stack is the software launch history from the initial booting until "now". 
-The software stack's signature can be represented as a recursive cryptographic hash of 
-the binary files as input values. Every computational step of the software stack signature 
-gets over-written into the TPM chip's same PCR register.</p><br><br>
+<p><b>Software integrity measurement</b> is a process that the information of the software loaded on the memory
+is collected and stored as a form of a summarized digest. In particular, when the computer
+system boots, the TPM uses an non-invertible hash function to compute a fingerprint (i.e. summary)
+of a loaded binaries (i.e. executables, kernel modules, dynamic libraries) and shell script commands.
+Each loaded binary is hashed and fed into the hash function again with the next loaded binary. 
+Thus, each computed hash value is a summary of all loaded binaries so far.</p>
+
+
+<p>These hash values are used for attesting the established code stack to remote provers. 
+A code stack is the software launch history from the initial booting until "now",
+which includes the system BIOS, bootloader and kernel image.  
+The code stack's signature can be represented as a recursive cryptographic hash of 
+the binary files as input values. Every computational step of the code stack signature 
+gets over-written into the TPM chip's same internal PCR register.</p>
 
 <p>We cannot arbitrarily modify the PCR register's value, because it is physically outside 
 our CPU. Thus, software attacks cannot tamper with TPM and its PCR, due to this hardware 
-protection setting.</p><br><br>
+protection setting.</p><br>
 
 <p>So if a malicious software runs before or after the authorized program, its binary will 
 get accumulated into TPM's PCR register, and the final software stack's signature will become 
 a different value than what we expect. This way, we know that some unauthorized program 
-was/is running on our computer.</p><br><br>
+was/is running on our computer.</p><br>
 
-<h2>Problem Definition</h2>
+<p><b>Remote attestation</b> is a mechanism a client (prover) can authenticate its hardware and software 
+setting to a remote server (challenger). The goal of remote attestation is to allow an challenger
+to verify the integrity of a remote prover's platform by using an untemperable hardware prover.</p><br><br>
+
+
+
+
+		
+<h4>Overview</h4>
+<a name="implementation"></a>
+
+<h3>Problem Definition</h3>
 
 <p>Suppose we cannot run a task manager because our task manager got compromised by the malicious 
 program. So the only way for us to investigate the identity of the malicious program is by 
@@ -123,99 +161,268 @@ program's binaries and our expected software stack signature, we reverse-enginee
 (i.e. re-compute the recursive SHA1 in a brute-force way for all possibilities) and determine: 
 which malicious program(s) were/are running on our compromised computer? </p><br><br>
 
-<h2>Parallel Computing</h2>
+<h3>Parallel Computing</h3>
 
 <p>The larger our software stack's size is (i.e. the more programs we have launched), 
 the longer it'll take to brute-force and determine the malicious program's identity. And 
 the larger the number of candidate malicious programs is, the longer it'll take to brute-force 
-and determine the malicious program's identity.</p><br><br>
+and determine the malicious program's identity.</p>
 
 <p>As the software stack size increases linearly, our the search space grows exponentially.
 As the number of candidate malicious programs linearly, our search space grows linearly.
 We can use Odyssey to test and determine the feasible maximum size of the software stacks 
-and the feasible number of malicious programs.</p><br><br>
+and the feasible number of malicious programs.</p>
 
-		
-<h3>Implementation</h3>
-<a name="implementation"></a>
+
+<p>To accomplish parallel computing, we first leverage <b>OpenCC (open acelerators)</b>, which is a
+C++-based parallel programming standard whose gaol is to simplify parallel computing of
+heterogenius CPU and GPU systems. OpenCC is a high-level programming component to abstractize
+data transfer between the CPU and the accelerator. In particular, OpenCC pragmas are used 
+as compiler directives in order to specify parallel regions in the source code. 
+Then, OpenCC compiler processes data between the host and accelerators.
+When OpenCC is used in C/C++, the length of dynamically allocated arrays must be
+specified in advance. By doing so, the OpenCC compiler can pad array dimensions
+on the accelerators to enhance memory alignment and execution performance. 
+In addition, variables/arrays of struct or class are processed in a special way.</p>
+
+<p>Our architecture also leverages CUDA which is another parallet computing platform
+and API. 
+CUDA is a software platform that gives direct access to GPU's virtual instructions
+and parallel computing elements. Although GPUS are widely used in game industries 
+for graphics rendering and game physics calculations, CUDA-enabled GPUs can be 
+utilized for general-purpose processing (GPGPU). Such examples include 
+non-graphical applications in cryptography, computational biology
+and scientific calculation. </p>
+
+<p>CUDA platform is accessible through CUDA-accelerated libraries,
+compiler directives suchas OpenCC/OpenMP and standard languages such as C/C++/Fortran.
+In addition, CUDA also supports other computational interfaces including OpenCL, DirectCompute,
+OpenGL and C++ AMP. Furthermore, third-party wrappers can be used in Python, Perl,
+Java, Ruby, Matlab, R, Mathematica and IDL. </p> <br><br>
+
+
+
+<h3>Terminology </h3>
+
+<p>The following defines two key entities used in our TPM-enabled system booting and remote attestation between two machines.</p>
+
+<ul>
+<li>P: prover computer to be attested by the challenger </li>
+<li>C: challenger computer to attest the prover </li>
+<li>TPM: prover computer's TPM chip </li>  
+</ul>
+
+<p>P has its own TPM chip, and C knows this TPM chip's public key. TPM chip's 
+private key is known only to TPM itself and never leaves the TPM chip. 
+It's almost impossible to even physically break the TPM chip to learn about this key. </p><br><br>
+
+<h3>TPM-enabled System's Booting Procedure</h3>
+
+<p>The following steps describe how a TPM-enabled prover machine (P) boots up in tandem with TPM's integrity measurement.</p>
 
 <p>
-<Setting>
-- TC: Target computer (running sample programs)<br>
-- IC: Investigator Computer (remotely checking the virus injected into TC) <br><br>
+<b>Step 1)</b> Turn on <b>P</b> machine's power<br><br>
+<b>Step 2)</b> <b>P (BIOS)</b>  &rarr; <b>TPM</b> : computes & sends GRUB2 bootloader binary's SHA1 hash<br><br>
+<b>Step 3)</b> <b>P (BIOS)</b> : loads and launches GRUB2 Bootloader binary on memory.<br><br>
+<b>Step 4)</b> <b>P (GRUB2 bootloader)</b> &rarr; <b>TPM</b> : computes & sends Linux kernel binary's SHA1 hash<br><br>
+<b>Step 5)</b> <b>P (GRUB2 bootloader)</b> : loads and launches Linux kernel on memory.<br><br>
+<b>Step 6)</b> <b>P (Linux kernel)</b> &rarr; <b>TPM</b> : <br><br>
+a) computes and sends every startup program binary file's SHA1 hash just before launching each. (e.g. firefox, vim, gedit)<br><br>
+b) computes and sends its every dynamic program loader file's SHA1 hash just before launching each. (e.g. ld.so in case of Linux)<br><br>
+c) computes and sends every dynamically shared library file's SHA1 hash (e.g. .so files in case of Linux) just before loading each. (e.g. libc.so, libcrypto.so)<br><br>
+d) computes and sends every Linux kernel module file's SHA1 hashx before mounting each. (e.g. bluetooth, video, wifi modules) <br><br>
+</p>
 
-TC has its own TPM chip, and IC knows this TPM chip's public key. TPM chip's 
-private key is known only to TPM itself. It's impossible to even physically 
-break the TPM chip to learn about this key. </p> <br><br>
+During the boot process, the machine's CRTM, BIOS and IPL(Initial Program Loader) and their configuration 
+data are hashed by SHA1 algorithm and are measured into PCR[0~7]. The BIOS then reads the bootloader from 
+the disk, extends PCR[8] with the hash of the bootloader, and jump to the first instruction of bootloader. 
+From then on, any booloader modules that are loaded are also measured into PCR[8]. Then, the full kernel 
+image is measured into PCR[8], and the full initramfs is measured into PCR[8], and then the bootloader jumps 
+to the first instruction of the kernel. Meanwhile, each command executed by the bootloader (including those 
+in the config file) is measured into PCR[9], and finally the command line passed to the kernel is in PCR[9]. 
+Once the kernel starts, it concatenates the values in PCR[0-9] and extends to PCR[10]. Then the kernel 
+additionally hashes and extends all its loaded kernel modules, user-level system binaries and shell scripts 
+to PCR[10]. So, when a client asks a server to attest to the server-side software stack, the server’s PCR[10] 
+register will contain a cummulative hash of that stack.
 
-<TC's normal bootup and programs execution>
-0. Turn on the computer's power button<br>
-1. TC's BIOS (or UEFI) -> TPM : computes and sends GRUB2 bootloader binary's SHA1 value<br>
-2. TC's BIOS loads and launches GRUB2 Bootloader binary on memory.<br>
-3. TC's GRUB2 bootloader -> TPM : computes and sends Linux kernel binary's SHA1 value<br>
-4. TC's GRUB2 bootloader loads and launches Linux kernel on memory.<br>
-5. TC's Linux kernel -> TPM : <br>
-a) computes and sends every startup program binary file's SHA1 value just before launching each. (e.g. firefox, vim, gedit)<br>
-b) computes and sends its every dynamic program loader file's SHA1 value just before launching each. (e.g. ld.so in case of Linux)<br>
-c) computes and sends every dynamically shared library file's SHA1 value (e.g. .so files in case of Linux) just before loading each. (e.g. libc.so, libcrypto.so)<br>
-d) computes and sends every Linux kernel module file's SHA1 valuex before mounting each. (e.g. bluetooth, video, wifi modules) <br>
 
-<p>The TPM internally updates its currently stored SHA1 value by chronologically computing:  </p><br><br>
+<p>The TPM internally updates its currently stored SHA1 hash by chronologically computing:  </p>
 
-NewValue = SHA1(CurrentValue XOR NextValue).  <br><br>
+<p><center><b>hash<sub>n+1</sub> = SHA1( hash<sub>n</sub> &oplus; binary<sub>n+1</sub> )</b></center></p> 
 
 <p>In this mechanism, if ever one program element in the above launch process 
 (e.g. Linux kernel) is a defected version, its binary file will have a different 
-value in the defected part and thus its computed SHA1 value by the GRUB2 bootloader 
+value in the defected part and thus its computed SHA1 hash by the GRUB2 bootloader 
 to be extended into the TPM chip will be completely a different value than the 
-expected one. We (IC) can remotely check if the value stored in the target computer's (TC) 
+expected one. The challenger (C) can remotely check if the value stored in the target computer's (V) 
 TPM chip is our expected value or not, and thereby check if all programs loaded on 
-the system is safe to be used and if the computer (TC) is currently in a safe state.</p> <br><br>
+the system is safe to be used and if the prover computer (P) is currently in a safe state.</p> 
 
 <p>The order of launching programs is important, because it represents our root of trust chain. 
 In our design, our root of trust is BIOS (or UEFI). That is, we fundamentally trust that 
-BIOS will correctly compute the GRUB bootloader binary file's SHA1 value and send it to TPM. 
-Once this holds and if GRUB bootloader is compromised, its computed SHA1 value by BIOS to 
+BIOS will correctly compute the GRUB bootloader binary file's SHA1 hash and send it to TPM. 
+Once this holds and if GRUB bootloader is compromised, its computed SHA1 hash by BIOS to 
 be stored in the TPM will be a different value, and thus by checking the currently accumulated 
-SHA1 value stored in the TPM we can detect any abnormality on the loaded program. Once the 
+SHA1 hash stored in the TPM we can detect any abnormality on the loaded program. Once the 
 compromised GRUB bootloader is loaded, it cannot modify the TPM's current value to our 
 expected value, because SHA1 computational answer space is very large and it is infeasible 
-to find a value B such that SHA1 (A XOR B) = our expected value. The same mechanism applies 
+to find a value B such that SHA1 (A &oplus; B) = our expected value. The same mechanism applies 
 to all possibly defected user programs, dynamic libraries or kernel modules. Before they get 
 launched, the Linux kernel always computes their SHA1 hash and extend it to TPM. Thus, once 
 the compromised component starts running, it cannot cheat on the TPM's stored value to trick 
-us into believing that the computer is in a safe state. </p> <br><br>
+us into believing that the computer is in a safe state. </p> 
 
-<p>Based on my TPM extension experiment yesterday, the total number of binary, modules and 
-dynamic library was 4983, when completely booting Ubuntu 16.10 (Linux 4.8) kernel to the 
-desktop display.</p> <br><br>
+<br><br>
   
-<h2>TPM Remote Attestation</h2>
-1. TC (Target computer) -- IC (Investigator Computer) : Sends a random challenge number and asks 
-to send the current SHA1 value stored in TC's TPM. The challenge number is to prevent a 
+<h3>Remote Attestation Protocol</h3>
+
+<p>The following describes the remote attestation protocol between the challenger (C) and prover (P) machine.
+For this part, we implemented the remote attestation code in the verfiier and challenger machine
+by using IBM's TSS library.</p>
+
+<p>
+<b>Step 1)</b> <b>C</b> &rarr; <b>P</b> : Sends a random challenge number and asks 
+to send the current SHA1 hash stored in <b>P</b> machine's TPM. The challenge number is to prevent a 
 replay attack (will be explained)<br><br>
-2. TC -- TPM chip: sends IC's challenge number and asks to sign (e.g. RSA) and give its currently stored SHA1 value.<br> <br>
-3. TPM chip -- TC: signes its currently stored SHA1 value with the challenge number and sends them back<br><br>
-4. TC -- IC : sends its TPM's signed SHA1 value and the challenge number<br><br>
-5. IC : verifies the TPM's RSA signature on the signed SHA1 value and challenge number 
-(to check if this is a true SHA1 value approved by the TPM). The role of the challenge number 
+<b>Step 2)</b> <b>P</b> &rarr; <b>TPM</b> : sends P's challenge number and asks to sign (e.g. RSA) and give its currently stored SHA1 hash.<br> <br>
+<b>Step 3)</b> <b>TPM</b> &rarr; <b>P</b> : signes its currently stored SHA1 hash with the challenge number and sends them back<br><br>
+<b>Step 4)</b> <b>P</b> &rarr; <b>C</b> : sends its TPM's signed SHA1 hash, the challenge number, its X509 certificate and the kernel's binary launch log file<br><br>
+<b>Step 5)</b> <b>C</b> : Verifies the X509 certificate and then verifies the TPM's RSA signature on the signed SHA1 hash and challenge number 
+(to check if this is a true SHA1 hash approved by the TPM). The role of the challenge number 
 is to guarantee that this signature was created uniquely for this request with this challenge number, 
 thus a malware cannot illegally reuse this signature in the future, because the future request will 
-have a different challenge number.<br><br>
-6. IC : Checks if the SHA1 value is the same as our expected value. If not, IC creates and tests 
-all possible combination of candidate malware(s)' SHA1 value(s) into TC's program launch history's 
-sequence until IC gets the same value signed by the TPM. Once we find the matching value and matching 
+have a different challenge number. Thereafter, it checks if the SHA1 hash is the same as our expected value. 
+If the certificate and signature are verified but the hash does not match the expected value according to the launch log, 
+<b>C</b> creates and tests all possible combination of candidate malware(s)' SHA1 hash(s) into <b>P</b> machine's program launch history's 
+sequence until <b>C</b> gets the same value signed by the TPM. Once we find the matching value and matching 
 sequence, we can identify what the malware(s) is and exactly when it was launched. <br><br>
 
 </p>
 
-<h3>Evaluation</h3>
+<h3>OpenACC</h3>
+
+<p><font color="red">Write and show the essential part of code implementation!</font></p>
+
+<h3>CUDA</h3>
+
+<p><font color="red">Write and show the essential part of code implementation!</font></p>
+
+<h4>Evaluation</h4>
 <a name="evaluation"></a>
+
+<h3>System Setup</h3>
+
+<p>For the first experiment of remote attestation protocol, we used 
+To implement remote attestation, we used a server
+with LG’s UEFI firmware. The firmware implemented the
+<a href="https://trustedcomputinggroup.org/tpmlibrary-specification/">
+TPM 2.0 specification<sub>[1]</sub></a>. At boot time, the firmware extended
+a PCR with a TPM-aware version of the <a href="https:
+//github.com/coreos/grub">GRUB2
+bootloader<sub>[2]</sub></a>. GRUB2 then extended the PCR with
+a TPM-aware version of the Linux 4.8 kernel. The kernel
+used Linux’s <a 
+href="Linux. Integrity Measurement Architecture. https:
+//sourceforge.net/p/linux-ima/wiki/Home/">
+Integrity Management Architecture subsystem
+<sub>[4]</sub></a> to automatically extend the PCR upon the
+loading of kernel modules and user-mode binaries. Internally,
+the subsystem used a <a href="https://lwn.net/Articles/624241/.">
+Command/Response Buffer (CRB) device driver<sub>[5]</sub></a> to communicate with the TPM;
+the CRB protocol is <a href="https://trustedcomputinggroup.org/wp-content/
+uploads/Mobile-Command-Response-BufferInterface-v2-r12-Specification_FINAL2.pdf">
+the standard device interface for TPMs<sub>[6]</sub></a>. 
+The CRB driver exposed the TPM to the rest
+of the system via /dev/tpm0. Our server-side attestation
+daemon was a user-mode process which leveraged the
+<a href=" https://sourceforge.net/
+projects/ibmtpm20tss/">IBM TSS library<sub>[7]</sub></a> to ask the TPM for quotes.</p>
+
+<p>For the second experiment of malware identity analysis, we used <a href="https://www.rc.fas.harvard.edu/resources/odyssey-architecture/">
+Harvard University's Odyssey<sub>[8]</sub></a>, which is a large-scale heterogeneous
+high performance computing cluster 
+which can run computationally intensive scientific simulation and modeling. 
+Each node contains from 8 to 64 core united of Intel and AMD-based x86_64 architectures.
+Each node uses 12GB to 512GB RAM, where 4GB/core on average. There are also
+1,000,000 NVIDIA GPU cores for high-speed parallel computing. Its storage unit size is
+35 Petabytes. We emulated different network latencies and bandwidths by using
+<a href="https://wiki.
+linuxfoundation.org/networking/netem">tc-netem<sub>[11]</sub></a> 
+and <a href="https://linux.die.net/man/8/tc-tbf">tc-tbf<sub>[12]</sub></a>.
+
+</p><br>
+
+<h3>Remote Attestation Experiment</h3>
+
+<br><center><img src="11.jpg"  align="middle" width="300px" /></center>
+<p><center><b>Figure 1. Challenger-preceived latencies for remote attestation.</b></center></p>
+
+<p>Figure 1 shows the challenger-perceived delays of the remote attestation
+protocol across different network delays and bandwidths scenarios. 
+The PCR value's quote size was 89 bytes, PCR[10]'s SHA1 hash was 
+20 bytes, X509 certificate was 150 bytes, and a log of hash values
+recorded by the prover. This log includes every binary's
+pathname (e.g., /bin/sh). The pathname can be used as extra information
+for the challenger to reverse-engineer the loaded components in a more detailed way. 
+Our prover booted at runtime level 3, where the full kernel image
+and its device drivers were loaded, but no GUI manager.
+The number of loaded binaries were 1774 files, whose gzip compression
+yielded 112 kilobytes. Figure 4 illustrates the expected patterns. 
+The attestation delay becomes higher with the increasing network
+latency, but decreases with the increasing bandwidth. Our latency
+did not get any lower beyond 2Mbps. As typical bandwidths of
+mobile connections are around 20MBps (10 times higher than
+our maximum bandwidth), the desicive factor of the remote attestation 
+delay will be the network latency. </p>
+
+<p>One interesting finding was that a single TPM quote signing operation
+took 225ms, while a TPM PCR read operation took 20ms. 
+We speculate that the larger delay of quote signing was attributed to
+the computationally expensive RSA signing operation, which would take
+longer in a small TPM chip than high-end CPUs.</p> <br><br>
+
+
+<h3>OpenACC and CUDA Experiment</h3>
+
+<p><font color="red">Write!</font></p>
+
+
+<h4>Conclusion</h4>
+
+<p>In this project we explored how to leverage parallel computing to analyze malware intrusion 
+and reverse-engineer the code stack digest recorded by TPM. Then we demonstrated that
+it is feasible to determine the exact identity a small number of intruding malware which belongs to 
+our discovered malware list by leveraging parallel computing based on OpenACC and CUDA. 
+
+One drawback of our current malware identification solution is that it cannot detect
+<a href="https://en.wikipedia.org/wiki/Self-modifying_code">self-modifying malware<sub>[3]</sub></a></cite>,
+because such code can arbitarily modify its binary sequence without impacting its functionality. 
+It is not feasible to define all such random variation of the same malware family in our
+malware definition list. To this end, our future research is to efficiently detect and determine
+the identity of randomly modified malware from the same family while leveraging a temper-proof TPM.
+
+
+
+</p><br><br>
+<center><img src="6.jpg"  align="middle" width="300px" /></center>
 <br><br>
-<h3>Conclusion</h3>
+<h4>References</h4>
+<p>[1] Trusted Computing Group. TPM 2.0 Library Specification,<br><a href="https://trustedcomputinggroup.org/tpmlibrary-specification/">https://trustedcomputinggroup.org/tpmlibrary-specification/</a>
+<p>[2] CoreOS. GRand Unified Bootloader 2.0,<br><a href="https://github.com/coreos/grub">https://github.com/coreos/grub</a>
+<p>[3] Self-modyfing code,<br> <a href="https://en.wikipedia.org/wiki/Self-modifying_code">https://en.wikipedia.org/wiki/Self-modifying_code</a>
+<p>[4] Linux. Integrity Measurement Architecture,<br> <a href="https://sourceforge.net/p/linux-ima/wiki/Home/">https://sourceforge.net/p/linux-ima/wiki/Home/</a>
+<p>[5] Linux. TPM 2.0 support for FIFO and CRB interfaces,<br> <a href="https://lwn.net/Articles/624241/">https://lwn.net/Articles/624241/</a>
+<p>[6] Trusted Computing Group. TPM 2.0 Mobile Command Response Buffer Interface,<br> <a href="https://trustedcomputinggroup.org/wp-content/uploads/Mobile-Command-Response-BufferInterface-v2-r12-Specification_FINAL2.pdf">https://trustedcomputinggroup.org/wp-content/uploads/Mobile-Command-Response-BufferInterface-v2-r12-Specification_FINAL2.pdf</a>
+<p>[7] IBM. TPM 2.0 TSS,<br> <a href="https://sourceforge.net/projects/ibmtpm20tss/">https://sourceforge.net/projects/ibmtpm20tss/</a>
+<p>[8] Harvard University' Odyssey,<br> <a href="https://www.rc.fas.harvard.edu/resources/odyssey-architecture/">https://www.rc.fas.harvard.edu/resources/odyssey-architecture/</a>
+<p>[9] Kinney, Steven. Platform Configuration Registers. In Trusted Platform Module Basics, 2006 <br> <a href="http://doi.org/10.1016/B978-075067960-2/50007-5">http://doi.org/10.1016/B978-075067960-2/50007-5</a>
+<p>[10] Coker, G., Guttman, J., Loscocco, P. et al. Int. J. Inf. Secur. Principles of remote attestation. In International Journal of Information Security(2011) 10: 63. <br> <a href="doi:10.1007/s10207-011-0124-7">doi:10.1007/s10207-011-0124-7</a>
+<p>[11] The Linux Foundation. netem.<br><a href="https://wiki.linuxfoundation.org/networking/netem">https://wiki.linuxfoundation.org/networking/netem</a>
+<p>[12] The Linux Foundation. Token Bucket Filter manpage.<br><a href="https://linux.die.net/man/8/tc-tbf">https://linux.die.net/man/8/tc-tbf</a>
+
 <br><br>
 <a name="conclusion"></a>
-<center><img src="6.jpg"  align="middle" width="300px" /></center>
+
 </div>
 </div>
 <div id="footer">
