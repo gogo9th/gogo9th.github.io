@@ -17,17 +17,18 @@ h2 {
 h3 {
 	color: #5D5651;
 	font-size: 20px;
-font-family:Georgia;
-	padding: .1em;
-	margin: 1em 1em .4em;
+	font-family:Georgia;
+	padding: 0;
+	margin: .4em;
 	background: transparent;
 	}
 
 h4 {
 	color: #F5F5F5;
+	font-size: 25px;
 	background-color: #3A6D98;
 	margin-top: 0;
-	padding: .1em;
+	padding: 0;
 	border: medium double black;
 	text-align: center;
 }
