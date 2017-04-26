@@ -44,7 +44,7 @@ are inappropriate and inefficient for non-expert users.</p>
 
 <p>Another problem is, cyber security and cyber attacks are in arms race: once an ideal 
 software security scheme is proposed that can patch all currently existing vulnerabilites, 
-a new attack schemes are invented that breaks it. If our target of protection is
+new attack schemes are invented that breaks it. If our target of protection is
 physical human lives in a smart car, for example, the impact of security breach will be
 catastrophic, which is already too late to take countermeasures.</p>
 
@@ -73,7 +73,7 @@ untemperable cryptographic digest securely stored in the TPM chip, which is a
 system's last boot-up.</p>
 
 <p>While the TPM updates the historical summary of all loaded binaries as a single
-digest value, the kernel also records the hahs values of loaded binaries as well as
+digest value, the kernel also records the hash values of loaded binaries as well as
 their file name in its own log file. But a powerful malware could compromise the kernel's
 memory space by using buffer overflow attack, for example, and thereby temper with the 
 kernel's log file, as well as the kernel's task manager. 
@@ -96,12 +96,12 @@ injected into the program, there're 12,497,500 possible orderings to be analysed
 Since the number of orderings grows exponentially with the number of malware, 
 the computation for cryptanalysis is infeasible for a regular machine.</p>
 
-<p>In this research project, we use OpenCC and CUDA to study and demonstrate the 
+<p>In this research project, we use OpenAcc and CUDA to study and demonstrate the 
 feasibility of cryptanalyzing TPM's digests and thereby exactly identify the malware 
 injected into the target machine.</p>
 
 <p>In section 2, we overview the mechanism of TPM's remote attestation and how to leverage
-OpenCC and CUDA in this use case. In section 3, we explain the implementation details
+OpenAcc and CUDA in this use case. In section 3, we explain the implementation details
 of the scheme. In section 4, we shows the experimental results. In the final section,
 we summarize our findings and discuss the future work.</p><br><br>
 
@@ -174,28 +174,28 @@ We can use Odyssey to test and determine the feasible maximum size of the softwa
 and the feasible number of malicious programs.</p>
 
 
-<p>To accomplish parallel computing, we first leverage <b>OpenCC (open acelerators)</b>, which is a
+<p>To accomplish parallel computing, we first leverage <b>OpenAcc (open acelerators)</b>, which is a
 C++-based parallel programming standard whose gaol is to simplify parallel computing of
-heterogenius CPU and GPU systems. OpenCC is a high-level programming component to abstractize
-data transfer between the CPU and the accelerator. In particular, OpenCC pragmas are used 
+heterogenius CPU and GPU systems. OpenAcc is a high-level programming component to abstractize
+data transfer between the CPU and the accelerator. In particular, OpenAcc pragmas are used 
 as compiler directives in order to specify parallel regions in the source code. 
-Then, OpenCC compiler processes data between the host and accelerators.
-When OpenCC is used in C/C++, the length of dynamically allocated arrays must be
-specified in advance. By doing so, the OpenCC compiler can pad array dimensions
+Then, OpenAcc compiler processes data between the host and accelerators.
+When OpenAcc is used in C/C++, the length of dynamically allocated arrays must be
+specified in advance. By doing so, the OpenAcc compiler can pad array dimensions
 on the accelerators to enhance memory alignment and execution performance. 
 In addition, variables/arrays of struct or class are processed in a special way.</p>
 
-<p>Our architecture also leverages CUDA which is another parallet computing platform
+<p>Our architecture also leverages CUDA which is another parallel computing platform
 and API. 
 CUDA is a software platform that gives direct access to GPU's virtual instructions
 and parallel computing elements. Although GPUS are widely used in game industries 
 for graphics rendering and game physics calculations, CUDA-enabled GPUs can be 
-utilized for general-purpose processing (GPGPU). Such examples include 
+utilized for general-purpose processing (GPU). Such examples include 
 non-graphical applications in cryptography, computational biology
 and scientific calculation. </p>
 
 <p>CUDA platform is accessible through CUDA-accelerated libraries,
-compiler directives suchas OpenCC/OpenMP and standard languages such as C/C++/Fortran.
+compiler directives suchas OpenAcc/OpenMP and standard languages such as C/C++/Fortran.
 In addition, CUDA also supports other computational interfaces including OpenCL, DirectCompute,
 OpenGL and C++ AMP. Furthermore, third-party wrappers can be used in Python, Perl,
 Java, Ruby, Matlab, R, Mathematica and IDL. </p> <br><br>
@@ -299,7 +299,7 @@ sequence, we can identify what the malware(s) is and exactly when it was launche
 
 </p>
 
-<h3>OpenACC</h3>
+<h3>OpenAcc</h3>
 
 <p><font color="red">Write and show the essential part of code implementation!</font></p>
 
@@ -382,9 +382,11 @@ the computationally expensive RSA signing operation, which would take
 longer in a small TPM chip than high-end CPUs.</p> <br><br>
 
 
-<h3>OpenACC and CUDA Experiment</h3>
+<h3>OpenMP and CUDA Experiment</h3>
 
-<p><font color="red">Write!</font></p>
+<center><img src="results.png"  align="middle" width="300px" /></center><br>
+
+<p>Figure 2 exhibits the experimental runtime of computing SHA1 hash against the number of loaded binaries in TPM. We compared the runtime of serialized algorithm with parallelized ones using OpenMP/OpenAcc and CUDA. From the plot we noticed that OpenMP reduced the computation time to about one tenth of the serialized runtime with 12 threads, while CUDA .....</p>
 
 
 <h4>Conclusion</h4>
@@ -392,7 +394,7 @@ longer in a small TPM chip than high-end CPUs.</p> <br><br>
 <p>In this project we explored how to leverage parallel computing to analyze malware intrusion 
 and reverse-engineer the code stack digest recorded by TPM. Then we demonstrated that
 it is feasible to determine the exact identity a small number of intruding malware which belongs to 
-our discovered malware list by leveraging parallel computing based on OpenACC and CUDA. 
+our discovered malware list by leveraging parallel computing based on OpenAcc and CUDA. 
 
 One drawback of our current malware identification solution is that it cannot detect
 <a href="https://en.wikipedia.org/wiki/Self-modifying_code">self-modifying malware<sub>[3]</sub></a></cite>,
