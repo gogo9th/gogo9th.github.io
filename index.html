@@ -32,7 +32,8 @@
 
 <div id="main">
 
-<br><br><br><h4>Introduction<a name="introduction"></a></h4>
+<a name="introduction"></a>
+<br><br><br><h4>Introduction</h4>
 
 <p>
 The openness and flexibiliy of current software systems such as Linux have led 
@@ -109,8 +110,8 @@ of the scheme. In section 4, we shows the experimental results. In the final sec
 we summarize our findings and discuss the future work.</p><br><br>
 
 
-
-<h4>Background on TPM<a name="overview"></a></h4>
+<a name="overview"></a>
+<h4>Background on TPM</h4>
 
 
 <p> <b>Trusted Platform Module (TPM)</b> is a temper-proof security chip which communicates with the main CPU chip and
@@ -151,8 +152,8 @@ to verify the integrity of a remote prover's platform by using an untemperable h
 
 
 
-		
-<h4>Overview<a name="implementation"></a></h4>
+<a name="implementation"></a>		
+<h4>Overview</h4>
 
 
 <h3>Problem Definition</h3>
@@ -321,7 +322,8 @@ One challenge we faced was that the SHA1 fucntion is originally implemented in t
 dynamic Linux crypto library, which cannot be executed in the GPU. To address this issue, 
 we compiled our program by using a static version of crypto library, instead. </p> <br>
 
-<h4>Evaluation<a name="evaluation"></a></h4>
+<a name="evaluation"></a>
+<h4>Evaluation</h4>
 
 
 <h3>System Setup</h3>
@@ -423,15 +425,15 @@ practical scenario for a robust system.  </p><br>
 <p>In this project we explored how to leverage parallel computing to analyze malware intrusion 
 and reverse-engineer the code stack digest recorded by TPM. Then we demonstrated that
 it is feasible to determine the exact identity a small number of intruding malware which belongs to 
-our discovered malware list by leveraging parallel computing based on OpenAcc and CUDA. 
+our discovered malware list by leveraging parallel computing based on OpenAcc and CUDA.</p>
 
-One limitation of our current malware identification solution is that it cannot detect
-<a href="https://en.wikipedia.org/wiki/Self-modifying_code">self-modifying malware<sub>[3]</sub></a></cite>,
+<p>One limitation of our current malware identification solution is that it cannot detect
+<a href="https://en.wikipedia.org/wiki/Self-modifying_code">self-modifying malware<sub>[3]</sub></a>,
 because such code can arbitarily modify its binary sequence without impacting its functionality. 
 It is not feasible to define all such random variation of the same malware family in our
 malware definition list. To this end, our future research is to efficiently detect and determine
 the identity of randomly modified malware from the same family while leveraging a temper-proof TPM.
-</p><br><br>
+	</p><br><br>
 <center><img src="6.jpg"  align="middle" width="300px" /></center>
 <br><br>
 
