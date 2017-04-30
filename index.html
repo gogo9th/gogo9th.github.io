@@ -94,7 +94,10 @@ integrity, we have 5,001 possible orderings of the program launch with the malwa
 placed somewhere in the middle, If we have 2 candidate malwares suspected to be
 injected into the program, there're 12,497,500 possible orderings to be analysed. 
 Since the number of orderings grows exponentially with the number of malware, 
-the computation for cryptanalysis is infeasible for a regular machine.</p>
+the computation for cryptanalysis is infeasible for a regular machine.
+Achieving a high speed in malware detection and analysis is essential in software security,
+because the faster we can identify malware, more promptly we can take countermeasure against
+cyber attacks.</p>
 
 <p>In this research project, we use OpenAcc and CUDA to study and demonstrate the 
 feasibility of cryptanalyzing TPM's digests and thereby exactly identify the malware 
@@ -304,16 +307,16 @@ sequence, we can identify what the malware(s) is and exactly when it was launche
 <p>The core part of our project is to leverage parallel computing for malware identification. 
 We used two different designs: in the first design we used OpenMP. In particular, we used
 OpenMP pragmas in the forloops inserting the candidate malware into each possible position
-in the software boot-up sequence. One key challenge is to select all possible combination
+in the software boot-up sequence. The major challenge is to select all possible combination
 of malware in the scenario we have more than 1 malware injected. We used recursive function calls
-to compute malware combination, which is not part of parallel computing, and once each combination
-is selected within a recursive call we implemented OpenMP-enabled forloops. It is reasonble 
-to perform malware combination selection outside OpenMP because its overhead is considerably
-smaller than the forloops involving SHA1 hash computation. </p>
+to find all malware combinations, and whenever each malware combination
+is found at the end of recursion the context entered into OpenMP-enabled nested forloops. It is reasonble 
+to perform malware combination search outside the OpenMP region because combination search overhead is 
+considerably smaller than the nested forloops computing millions of SHA1 hashes. </p>
 
-<p> In the second design we used CUDA instead of OpenMP. We removed OpenMP pragmas locate outside
-the forloop and converted the nested forloops into a CUDA kernel function. We used cudaMalloc()
-and cudaMemcpy() functions to copy the array of defined malware and the array executed binaries.
+<p> In the second design we used CUDA instead of OpenMP. We removed OpenMP pragmas and converted the 
+nested forloops into a CUDA kernel function. We used cudaMalloc()
+and cudaMemcpy() functions to copy the array of malware definition and the array of executed binaries.
 One challenge we faced was that the SHA1 fucntion is originally implemented in the 
 dynamic Linux crypto library, which cannot be executed in the GPU. To address this issue, 
 we compiled our program by using a static version of crypto library, instead. </p> <br>
@@ -377,8 +380,8 @@ pathname (e.g., /bin/sh). The pathname can be used as extra information
 for the challenger to reverse-engineer the loaded components in a more detailed way. 
 Our prover booted at runtime level 3, where the full kernel image
 and its device drivers were loaded, but no GUI manager.
-The number of loaded binaries were 1774 files, whose gzip compression
-yielded 112 kilobytes. Figure 4 illustrates the expected patterns. 
+The number of loaded binaries were 200 files, whose gzip compression
+yielded 26 kilobytes. Figure 4 illustrates the expected patterns. 
 The attestation delay becomes higher with the increasing network
 latency, but decreases with the increasing bandwidth. Our latency
 did not get any lower beyond 2Mbps. As typical bandwidths of
@@ -395,10 +398,24 @@ longer in a small TPM chip than high-end CPUs.</p> <br><br>
 
 <h3>OpenMP and CUDA Experiment</h3>
 
-<center><img src="results.png"  align="middle" width="300px" /></center><br>
+<center><img src="results.jpg"  align="middle" width="500px" /></center>
+<p><center><b>Figure 2. Malware identification delay for serial, OpenMP and CUDA computing.</b></center></p>
 
-<p>Figure 2 exhibits the experimental runtime of computing SHA1 hash against the number of loaded binaries in TPM. We compared the runtime of serialized algorithm with parallelized ones using OpenMP/OpenAcc and CUDA. From the plot we noticed that OpenMP reduced the computation time to about one tenth of the serialized runtime with 12 threads, while CUDA .....</p>
+<p>Figure 2 depicts malware detection delays for serial, OpenMP and CUDA computing. 
+In particular, the delay represents the execution time for multiple SHA1 computations. 
+Since we had 200 binaries executed in the boot-up software stack, whenever we injected 
+1 additional malware in the boot-up sequence, it incurred 200 times higher execution time.
+Therefore, 1, 2, 3 and 4 malware injections respectively incurred 
+200, 200<sup>2</sup>, 200<sup>3</sup> an 200<sup>4</sup> SHA1 computations. </p>
 
+<p>As Figure 2 illustrates, OpenMP gained upto 10x speedup compared to serial computing,
+and CUDA gained upto 100x speedup. This is an expected result as Odyssey's GPU (CUDA) has many more cores
+than CPUs (OpenMP) and thus is faster in vectorized computation.</p> 
+
+<p>We could not experiment more than 4 malware injections, because its computational time would be expected
+to be around 500 hours for CUDA and 5000 hours for OpenACC! 
+However, we figure that simultaneous injection of 4 malware would be a reasonably sufficient
+practical scenario for a robust system. </p><br>
 
 <h4>Conclusion</h4>
 
@@ -407,7 +424,7 @@ and reverse-engineer the code stack digest recorded by TPM. Then we demonstrated
 it is feasible to determine the exact identity a small number of intruding malware which belongs to 
 our discovered malware list by leveraging parallel computing based on OpenAcc and CUDA. 
 
-One drawback of our current malware identification solution is that it cannot detect
+One limitation of our current malware identification solution is that it cannot detect
 <a href="https://en.wikipedia.org/wiki/Self-modifying_code">self-modifying malware<sub>[3]</sub></a></cite>,
 because such code can arbitarily modify its binary sequence without impacting its functionality. 
 It is not feasible to define all such random variation of the same malware family in our
