@@ -299,13 +299,24 @@ sequence, we can identify what the malware(s) is and exactly when it was launche
 
 </p>
 
-<h3>OpenAcc</h3>
+<h3>Parallel Computing: OpenMP and CUDA</h3>
 
-<p><font color="red">Write and show the essential part of code implementation!</font></p>
+<p>The core part of our project is to leverage parallel computing for malware identification. 
+We used two different designs: in the first design we used OpenMP. In particular, we used
+OpenMP pragmas in the forloops inserting the candidate malware into each possible position
+in the software boot-up sequence. One key challenge is to select all possible combination
+of malware in the scenario we have more than 1 malware injected. We used recursive function calls
+to compute malware combination, which is not part of parallel computing, and once each combination
+is selected within a recursive call we implemented OpenMP-enabled forloops. It is reasonble 
+to perform malware combination selection outside OpenMP because its overhead is considerably
+smaller than the forloops involving SHA1 hash computation. </p>
 
-<h3>CUDA</h3>
-
-<p><font color="red">Write and show the essential part of code implementation!</font></p>
+<p> In the second design we used CUDA instead of OpenMP. We removed OpenMP pragmas locate outside
+the forloop and converted the nested forloops into a CUDA kernel function. We used cudaMalloc()
+and cudaMemcpy() functions to copy the array of defined malware and the array executed binaries.
+One challenge we faced was that the SHA1 fucntion is originally implemented in the 
+dynamic Linux crypto library, which cannot be executed in the GPU. To address this issue, 
+we compiled our program by using a static version of crypto library, instead. </p>
 
 <h4>Evaluation</h4>
 <a name="evaluation"></a>
